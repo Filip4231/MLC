@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Login
+{% endblock %}
+
+{% block main %}
+    <h1>Login to MyLittleChat</h1>
+    <form action="/login" method="POST">
+        <input name="username" type="text" class="form-control" placeholder="username" autocomplete="off">
+        <input name="password" type="password" id="inputPassword5" class="form-control" aria-describedby="passwordHelpBlock" placeholder="password">
+    </form>
+    
+{% endblock %}
