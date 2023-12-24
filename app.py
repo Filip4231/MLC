@@ -17,6 +17,9 @@ db = SQL("sqlite:///mlc.db")
 
 @app.route("/")
 def index():
+    if session.get("user_id"):
+        users = db.execute("SELECT * FROM users WHERE id=?", session["user_id"])
+        return render_template("index.html", username=users[0]["username"])
     return render_template("index.html")
 
 
@@ -25,19 +28,52 @@ def login():
     if request.method == "GET":
         return render_template("login.html")
     else:
-        return render_template("login.html")
+        if not request.form.get("username"):
+            return render_template("login.html", massage="Please provide username")
+        if not request.form.get("password"):
+            return render_template("login.html", massage="Please provide password")
 
+        user = db.execute("SELECT * FROM users WHERE username=?", request.form.get("username"))
+        if len(user) == 0:
+            return render_template("login.html", massage="Wrong username and/or password")
 
-@app.route("/register", methods=["GET", "POST"])
-def register():
+        if not check_password_hash(user[0]["password"], request.form.get("password")):
+            return render_template("login.html", massage="Wrong username and/or password")
+        
+        session["user_id"] = user[0]["id"]
+        return redirect("/")
+
+@app.route("/signup", methods=["GET", "POST"])
+def signup():
     if request.method == "GET":
-        return render_template("register.html")
+        return render_template("signup.html")
     else:
+        if not request.form.get("username"):
+            return render_template("signup.html", massage="Please provide username")
+        if not request.form.get("password") or not request.form.get("confirmation"):
+            return render_template("signup.html", massage="Please provide password and confirm password")
+        if request.form.get("password") != request.form.get("confirmation"):
+            return render_template("signup.html", massage="Passwords are not identical")
+
+        users = db.execute("SELECT * FROM users WHERE username=?", request.form.get("username"))
+        print(users)
+        if len(users) != 0:
+            return render_template("signup.html", massage="Username is taken")
+
         print(request.form.get("username") + " " + generate_password_hash(request.form.get("password")))
         db.execute("INSERT INTO users(username, password) VALUES(?,?)", request.form.get("username"), generate_password_hash(request.form.get("password")))
+        users = db.execute("SELECT * FROM users WHERE username=?", request.form.get("username"))
+        session["user_id"] = users[0]["id"]
         return redirect("/")
 
 @app.route("/myprofile")
 @login_required
 def myprofile():
     return render_template("myprofile.html")
+
+
+@app.route("/logout")
+@login_required
+def logout():
+    session.clear()
+    return redirect("/")
