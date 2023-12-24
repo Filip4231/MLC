@@ -15,11 +15,11 @@
         <table class="table table-success table-striped col-12">
             {% for row in friends %}
                 <tr>
-                    <td>
+                    <td style="text-align: left; padding-left: 30px; font-size: x-large;">
                         {{row["friend_username"]}}
                     </td>
                     <td style="width: 10%;">
-                        <a href="/chats?friend={{row['friend2']}}">
+                        <a href="/chat?friend={{row['friend2']}}">
                             <button type="button" class="btn btn-success">
                                 Chat
                             </button>

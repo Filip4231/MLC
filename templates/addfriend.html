@@ -5,21 +5,22 @@
 {% endblock %}
 
 {% block main %}
-    <div class="center">
-        <form action="/addfriend" method="post">
-            <input name="username" autofocus autocomplete="off" placeholder="friend's username">
-        </form>
-    </div>
+    <form action="/addfriend" method="POST">
+        <input required name="username" type="text" class="form-control" placeholder="Friend's username" autocomplete="off">
+        <div class="center">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </form>
 
     <div class="ftab">
         <table class="table table-success table-striped col-12">
             {% for row in friends %}
                 <tr>
-                    <td>
-                        {{row["friend_username"]}}
+                    <td style="text-align: left; padding-left: 30px; font-size: x-large;">
+                        {{row["username"]}}
                     </td>
-                    <td style="width: 10%;">
-                        <a href="/chats?friend={{row['friend2']}}">
+                    <td style="width: 30%;">
+                        <a href="/add?friend={{row['id']}}">
                             <button type="button" class="btn btn-success">
                                 Add friend
                             </button>

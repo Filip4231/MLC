@@ -15,10 +15,14 @@ Session(app)
 
 db = SQL("sqlite:///mlc.db")
 
+
 @app.route("/")
 def index():
     if session.get("user_id"):
         users = db.execute("SELECT * FROM users WHERE id=?", session["user_id"])
+        if len(users) == 0:
+            session.clear()
+            return render_template("index.html")
         return render_template("index.html", username=users[0]["username"])
     return render_template("index.html")
 
@@ -55,7 +59,7 @@ def signup():
         if request.form.get("password") != request.form.get("confirmation"):
             return render_template("signup.html", massage="Passwords are not identical")
 
-        users = db.execute("SELECT * FROM users WHERE username=?", request.form.get("username"))
+        users = db.execute("SELECT * FROM users WHERE username LIKE ?", request.form.get("username"))
         print(users)
         if len(users) != 0:
             return render_template("signup.html", massage="Username is taken")
@@ -81,11 +85,11 @@ def logout():
 @app.route("/chats")
 @login_required
 def chats():
-    if request.args.get("friend"):
-        print(request.args.get("friend"))
-        massages = db.execute("SELECT * FROM massages WHERE sender=? AND receiver=?", session["user_id"], request.args.get("friend"))
-        return redirect("chat.html", friend1 = session["user_id"], friend2=request.args.get("friend"), massages=massages)
-    else:
+    #if request.args.get("friend"):
+    #    print(request.args.get("friend"))
+    #    massages = db.execute("SELECT * FROM massages WHERE sender=? AND receiver=?", session["user_id"], request.args.get("friend"))
+    #    return redirect("chat.html", friend1 = session["user_id"], friend2=request.args.get("friend"), massages=massages)
+    #else:
         friends = db.execute("SELECT * FROM friends WHERE friend1=? or friend2=?", session["user_id"], session["user_id"])
         for row in friends:
             if row["friend2"] == session["user_id"]:
@@ -97,10 +101,37 @@ def chats():
 
         return render_template("chats.html", friends=friends)
 
-@app.route("/addfriend")
+
+@app.route("/chat")
+@login_required
+def chat():
+    if not request.args.get("friend"):
+        return redirect("/chats")
+    else:
+        #TODO
+        print(request.args.get("friend"))
+        friendname = db.execute("SELECT * FROM users WHERE id=?", request.args.get("friend"))[0]["username"]
+        return render_template("chat.html", friend1=session["user_id"], friend2=friendname)
+
+
+
+@app.route("/addfriend", methods=["POST", "GET"])
 @login_required
 def addfriend():
-    print("a")
-    return render_template("addfriend.html")
+    if request.method == "GET":
+        print("a")
+        return render_template("addfriend.html")
+    else:
+        friends = db.execute("SELECT * FROM users WHERE username LIKE ? AND id!=?", "%" + request.form.get("username") + "%", session["user_id"])
+        print(friends)
+        return render_template("addfriend.html", friends=friends)
+        
+
+@app.route("/add")
+def add():
+    print("\n\n\n")
+    print(request.args.get("friend"))
+    db.execute("INSERT INTO friends(friend1, friend2) VALUES (?, ?)", session["user_id"], request.args.get("friend"))
+    return redirect("/chats")
 
     
