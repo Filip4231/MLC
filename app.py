@@ -77,3 +77,30 @@ def myprofile():
 def logout():
     session.clear()
     return redirect("/")
+
+@app.route("/chats")
+@login_required
+def chats():
+    if request.args.get("friend"):
+        print(request.args.get("friend"))
+        massages = db.execute("SELECT * FROM massages WHERE sender=? AND receiver=?", session["user_id"], request.args.get("friend"))
+        return redirect("chat.html", friend1 = session["user_id"], friend2=request.args.get("friend"), massages=massages)
+    else:
+        friends = db.execute("SELECT * FROM friends WHERE friend1=? or friend2=?", session["user_id"], session["user_id"])
+        for row in friends:
+            if row["friend2"] == session["user_id"]:
+                row["friend2"], row["friend1"] = row["friend1"], row["friend2"]
+
+        for row in friends:
+            users = db.execute("SELECT * FROM users WHERE id=?", row["friend2"])
+            row["friend_username"] = users[0]["username"]
+
+        return render_template("chats.html", friends=friends)
+
+@app.route("/addfriend")
+@login_required
+def addfriend():
+    print("a")
+    return render_template("addfriend.html")
+
+    

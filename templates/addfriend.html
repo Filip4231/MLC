@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Add friend
+{% endblock %}
+
+{% block main %}
+    <div class="center">
+        <form action="/addfriend" method="post">
+            <input name="username" autofocus autocomplete="off" placeholder="friend's username">
+        </form>
+    </div>
+
+    <div class="ftab">
+        <table class="table table-success table-striped col-12">
+            {% for row in friends %}
+                <tr>
+                    <td>
+                        {{row["friend_username"]}}
+                    </td>
+                    <td style="width: 10%;">
+                        <a href="/chats?friend={{row['friend2']}}">
+                            <button type="button" class="btn btn-success">
+                                Add friend
+                            </button>
+                        </a>
+                        
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Chats
+{% endblock %}
+
+{% block main %}
+    <div class="center">
+        <a href="/addfriend">
+            <button class="btn btn-success">Add friends</button>
+        </a>
+    </div>
+    <h3 class="center">Friend list</h3>
+    <div class="ftab">
+        <table class="table table-success table-striped col-12">
+            {% for row in friends %}
+                <tr>
+                    <td>
+                        {{row["friend_username"]}}
+                    </td>
+                    <td style="width: 10%;">
+                        <a href="/chats?friend={{row['friend2']}}">
+                            <button type="button" class="btn btn-success">
+                                Chat
+                            </button>
+                        </a>
+                        
+                    </td>
+                </tr>
+                    
+
+            {% endfor %}
+        </table>
+    </div>
+    
+{% endblock %}
