@@ -5,5 +5,26 @@
 {% endblock %}
 
 {% block main %}
-    <h1>MyLittleChat with {{friend2}}</h1>
+    <h1>MyLittleChat with {{friend2_username}}</h1>
+    {% for massage in massages %}
+    {% if massage["sender"] == friend1 %}
+    <div class="massage">
+        <div class="sender">You</div>
+        <p>{{massage["massage"]}}</p>
+    </div>
+    {% else %}
+    <div class="massage darker">
+        <div class="sender" style="text-align: left;">{{friend2_username}}</div>
+        <p>{{massage["massage"]}}</p>
+    </div>
+    {% endif %}
+    {% endfor %}
+    <div>
+        <form action="/chat?friend={{friend2}}" method="post" class="form-inline">
+            <div class="form-group mx-sm-3 mb-2">
+                <input required name="massage" type="text" class="form-control" id="inputPassword2" placeholder="massage" autocomplete="off">
+                <button type="submit" class="btn btn-primary">Send massage</button>
+            </div>
+        </form>
+    </div>
 {% endblock %}
