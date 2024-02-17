@@ -11,6 +11,9 @@
         </a>
     </div>
     <h3 class="center">Friend list</h3>
+    {% if not friends %}
+        <h6 class="center">Looks like you don't add any friends yet.</h6>
+    {% endif %}
     <div class="ftab">
         <table class="table table-success table-striped col-12">
             {% for row in friends %}

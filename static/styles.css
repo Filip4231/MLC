@@ -36,3 +36,23 @@ input{
     margin-right: 20%;
     margin-top: 10px;
 }
+
+.massage{
+    border: 2px solid #dedede;
+    background-color: #f1f1f1;
+    border-radius: 5px;
+    padding: 10px;
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-bottom: 10px;
+}
+
+.darker {
+    border-color: #ccc;
+    background-color: #ddd;
+}
+
+.sender{
+    font-weight: 500;
+    font-size: larger;
+}

@@ -102,16 +102,27 @@ def chats():
         return render_template("chats.html", friends=friends)
 
 
-@app.route("/chat")
+@app.route("/chat", methods=["GET", "POST"])
 @login_required
 def chat():
     if not request.args.get("friend"):
         return redirect("/chats")
     else:
-        #TODO
+        massages = db.execute("SELECT * FROM massages WHERE (sender=? AND receiver=?) OR (sender=? AND receiver=?)", session["user_id"], request.args.get("friend"), request.args.get("friend"), session["user_id"])
+        print(massages)
         print(request.args.get("friend"))
+        #print(massages[len(massages)-1]["sender"])
+        if request.form.get("massage") and (len(massages)==0 or massages[len(massages)-1]["massage"] != request.form.get("massage" or massages[len(massages)-1]["sender"] != request.args.grt("friend"))) :
+            print(request.form.get("massage"))
+            db.execute("INSERT INTO massages(sender,receiver,massage) VALUES(?,?,?)", session["user_id"], request.args.get("friend"), request.form.get("massage"))
+
+        massages = db.execute("SELECT * FROM massages WHERE (sender=? AND receiver=?) OR (sender=? AND receiver=?)", session["user_id"], request.args.get("friend"), request.args.get("friend"), session["user_id"])
+        print(massages)
+        print(request.args.get("friend"))
+        print(session["user_id"])
         friendname = db.execute("SELECT * FROM users WHERE id=?", request.args.get("friend"))[0]["username"]
-        return render_template("chat.html", friend1=session["user_id"], friend2=friendname)
+        username = db.execute("SELECT * FROM users WHERE id=?", session["user_id"])[0]["username"]
+        return render_template("chat.html", friend1_username=username, friend2_username=friendname, friend1=session["user_id"], friend2=request.args.get("friend"), massages=massages)
 
 
 
@@ -122,6 +133,8 @@ def addfriend():
         print("a")
         return render_template("addfriend.html")
     else:
+        if not request.form.get("username"):
+            return render_template("addfriend.html", massage="Provide friend's username")
         friends = db.execute("SELECT * FROM users WHERE username LIKE ? AND id!=?", "%" + request.form.get("username") + "%", session["user_id"])
         print(friends)
         return render_template("addfriend.html", friends=friends)
