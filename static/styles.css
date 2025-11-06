@@ -10,6 +10,11 @@ h1{
     text-align: center;
 }
 
+.time{
+    text-align: right;
+    color: rgb(5,102,22);
+}
+
 .color{
     color: rgb(5,102,22);
 }
@@ -37,7 +42,7 @@ input{
     margin-top: 10px;
 }
 
-.massage{
+.message{
     border: 2px solid #dedede;
     background-color: #f1f1f1;
     border-radius: 5px;
@@ -55,4 +60,5 @@ input{
 .sender{
     font-weight: 500;
     font-size: larger;
+    font-size: 25px;
 }
