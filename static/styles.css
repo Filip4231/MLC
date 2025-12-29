@@ -62,3 +62,29 @@ input{
     font-size: larger;
     font-size: 25px;
 }
+
+form.chat-form {
+    display: flex;
+    align-items: center;
+    margin: 40px 20%;
+    gap: 10px;
+}
+
+form.chat-form input {
+    flex: 1;
+    margin: 0; 
+    padding: 10px 15px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    height: 40px;
+}
+
+form.chat-form button {
+    height: 40px;
+    padding: 0 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
