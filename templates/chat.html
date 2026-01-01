@@ -5,34 +5,44 @@
 {% endblock %}
 
 {% block main %}
-    <h1>MyLittleChat with {{friend2_username}}</h1>
-    {% for message in messages %}
-    {% if message["sender"] == friend1 %}
-        <div class="message">
-            <div class="sender">You</div>
-            <p style="font-size: 20px;">{{message["message"]}}</p>
-        {% if message["date"] != "None" %}
-            <div class="time">{{message["date"]}}</div>
-        {% endif %}
-        </div>
-        
-    {% else %}
-        <div class="message darker">
-            <div class="sender" style="text-align: left;">{{friend2_username}}</div>
-                <p style="font-size: 20px;">{{message["message"]}}</p>
-                
-            {% if message["date"] != "None" %}
-                <div class="time">{{message["date"]}}</div>
-            {% endif %}
-        </div>
-        
-    {% endif %}
-    {% endfor %}
-    <div>
-        <form action="/chat?friend={{friend2}}" method="post" class="chat-form">
-            <input required name="message" type="text" placeholder="Message" autocomplete="off">
-            <button type="submit" class="btn btn-primary">Send</button>
-        </form>
-    </div>
+<h1>MyLittleChat with {{friend2_username}}</h1>
 
+<div id="message-box" style="height: 70vh; overflow-y: auto; scroll-behavior: smooth; margin-bottom: 20px; border: 1px solid #eee; padding: 10px;">
+    
+    {% for message in messages %}
+        {% if message["sender"] == friend1 %}
+            <div class="message">
+                <div class="sender">You</div>
+                <p style="font-size: 20px;">{{message["message"]}}</p>
+                {% if message["date"] != "None" %}
+                    <div class="time">{{message["date"]}}</div>
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="message darker">
+                <div class="sender" style="text-align: left;">{{friend2_username}}</div>
+                <p style="font-size: 20px;">{{message["message"]}}</p>
+                {% if message["date"] != "None" %}
+                    <div class="time">{{message["date"]}}</div>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endfor %}
+
+</div> <div>
+    <form action="/chat?friend={{friend2}}" method="post" class="chat-form">
+        <input required name="message" type="text" placeholder="Message" autocomplete="off">
+        <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+</div>
+
+<script>
+function scrollToBottom() {
+    const messageBox = document.getElementById('message-box');
+    if (messageBox) {
+        messageBox.scrollTop = messageBox.scrollHeight;
+    }
+}
+window.onload = scrollToBottom;
+</script>
 {% endblock %}

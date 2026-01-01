@@ -6,6 +6,7 @@ from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 from sqlalchemy import text
+from dotenv import load_dotenv
 
 from helpers import login_required
 
@@ -29,10 +30,10 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-#NOWA SQL
+load_dotenv()
+#path string to 'neon' database in Environment Variable
 
-#database_url = 'postgresql://neondb_owner:npg_nxUBtfEy9wM6@ep-steep-cherry-agivbh8p-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
-database_url = os.getenv('DATABASE_URL', 'sqlite:///mlc.db')
+database_url = os.getenv('DATABASE_URL')
 
 
 if database_url.startswith("postgres://"):
