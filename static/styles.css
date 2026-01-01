@@ -52,6 +52,15 @@ input{
     margin-bottom: 10px;
 }
 
+#message-box{
+    scroll-behavior: auto;
+    height: 70vh; 
+    overflow-y: auto; 
+    margin-bottom: 20px; 
+    border: 1px solid #eee; 
+    padding: 10px;
+}
+
 .darker {
     border-color: #ccc;
     background-color: #ddd;

@@ -7,7 +7,7 @@
 {% block main %}
 <h1>MyLittleChat with {{friend2_username}}</h1>
 
-<div id="message-box" style="height: 70vh; overflow-y: auto; scroll-behavior: smooth; margin-bottom: 20px; border: 1px solid #eee; padding: 10px;">
+<div id="message-box">
     
     {% for message in messages %}
         {% if message["sender"] == friend1 %}
@@ -37,12 +37,19 @@
 </div>
 
 <script>
+
 function scrollToBottom() {
+
     const messageBox = document.getElementById('message-box');
+
     if (messageBox) {
+
         messageBox.scrollTop = messageBox.scrollHeight;
+
     }
 }
+
 window.onload = scrollToBottom;
+
 </script>
 {% endblock %}
