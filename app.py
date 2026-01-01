@@ -31,22 +31,19 @@ Session(app)
 
 #NOWA SQL
 
+#database_url = 'postgresql://neondb_owner:npg_nxUBtfEy9wM6@ep-steep-cherry-agivbh8p-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
 database_url = os.getenv('DATABASE_URL', 'sqlite:///mlc.db')
 
-# WAŻNE: Render/Neon używają 'postgresql://', ale SQLAlchemy czasem wymaga 'postgresql+psycopg2://'
+
 if database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-#NOWA SQL
-#db = SQL("sqlite:///mlc.db")
-
 db = SQLAlchemy(app)
 
 with app.app_context():
-    # PostgreSQL używa SERIAL dla automatycznego ID, SQLite używa INTEGER PRIMARY KEY
     id_type = "SERIAL" if "postgresql" in database_url else "INTEGER"
     
     db.session.execute(text(f"""
@@ -81,7 +78,6 @@ with app.app_context():
 @app.route("/")
 def index():
     if session.get("user_id"):
-        # Używamy :u jako placeholder, a w słowniku podajemy session["user_id"]
         users = db.session.execute(
             text("SELECT * FROM users WHERE id = :u"), 
             {"u": session["user_id"]}
@@ -91,7 +87,6 @@ def index():
             session.clear()
             return render_template("index.html")
         
-        # users[0] to teraz słownik-podobny obiekt, więc username=users[0]["username"] zadziała
         return render_template("index.html", username=users[0]["username"])
     
     return render_template("index.html")
@@ -110,13 +105,11 @@ def login():
         if not password:
             return render_template("login.html", message="Please provide password")
 
-        # Zamiana db.execute na SQLAlchemy session execute
         result = db.session.execute(
             text("SELECT * FROM users WHERE username = :u"), 
             {"u": username}
         ).mappings().all()
 
-        # result zachowuje się teraz jak lista słowników (tak jak w CS50)
         if len(result) == 0:
             return render_template("login.html", message="Wrong username and/or password")
 
@@ -145,7 +138,6 @@ def signup():
         if password != confirmation:
             return render_template("signup.html", message="Passwords are not identical")
 
-        # Sprawdzanie czy użytkownik istnieje
         users = db.session.execute(
             text("SELECT * FROM users WHERE username = :u"), 
             {"u": username}
@@ -154,7 +146,6 @@ def signup():
         if len(users) != 0:
             return render_template("signup.html", message="Username is taken")
 
-        # Rejestracja nowego użytkownika
         hashed_password = generate_password_hash(password)
         
         db.session.execute(
@@ -162,10 +153,8 @@ def signup():
             {"u": username, "p": hashed_password}
         )
         
-        # BARDZO WAŻNE: W SQLAlchemy musisz zatwierdzić transakcję
         db.session.commit()
 
-        # Pobieramy ID nowo stworzonego użytkownika
         new_user = db.session.execute(
             text("SELECT id FROM users WHERE username = :u"),
             {"u": username}
@@ -189,21 +178,17 @@ def logout():
 @app.route("/chats")
 @login_required
 def chats():
-    # 1. Pobieramy listę znajomych
     friends_result = db.session.execute(
         text("SELECT * FROM friends WHERE friend1 = :u OR friend2 = :u"),
         {"u": session["user_id"]}
     ).mappings().all()
 
-    # Zamieniamy na listę zwykłych słowników, żeby móc je modyfikować
     friends = [dict(row) for row in friends_result]
 
     for row in friends:
-        # 2. Logika zamiany (uproszczona): chcemy, aby friend2 zawsze był "tym drugim"
         if row["friend2"] == session["user_id"]:
             row["friend2"], row["friend1"] = row["friend1"], row["friend2"]
 
-        # 3. Pobieramy nazwę użytkownika znajomego
         user_result = db.session.execute(
             text("SELECT username FROM users WHERE id = :id"),
             {"id": row["friend2"]}
@@ -224,7 +209,6 @@ def chat():
     if not friend_id:
         return redirect("/chats")
 
-    # 1. Pobieramy wiadomości (używamy nazwanych parametrów :u i :f dla czytelności)
     query_messages = text("""
         SELECT * FROM messages 
         WHERE (sender = :u AND receiver = :f) 
@@ -235,10 +219,8 @@ def chat():
     messages_res = db.session.execute(query_messages, {"u": user_id, "f": friend_id}).mappings().all()
     messages = [dict(row) for row in messages_res]
 
-    # 2. Obsługa wysyłania nowej wiadomości (metoda POST / form)
     new_message_text = request.form.get("message")
     if new_message_text:
-        # Prosta walidacja: sprawdź czy wiadomość nie jest identyczna z ostatnią (ochrona przed odświeżaniem strony)
         is_duplicate = False
         if len(messages) > 0 and messages[-1]["message"] == new_message_text:
             is_duplicate = True
@@ -248,13 +230,11 @@ def chat():
                 text("INSERT INTO messages (sender, receiver, message, date) VALUES (:s, :r, :m, :d)"),
                 {"s": user_id, "r": friend_id, "m": new_message_text, "d": time()}
             )
-            db.session.commit() # Zapisujemy w bazie Neon
+            db.session.commit()
             
-            # Odświeżamy listę wiadomości po dodaniu nowej
             messages_res = db.session.execute(query_messages, {"u": user_id, "f": friend_id}).mappings().all()
             messages = [dict(row) for row in messages_res]
 
-    # 3. Pobieramy nazwy użytkowników
     friend_res = db.session.execute(text("SELECT username FROM users WHERE id = :id"), {"id": friend_id}).mappings().all()
     user_res = db.session.execute(text("SELECT username FROM users WHERE id = :id"), {"id": user_id}).mappings().all()
 
@@ -284,8 +264,6 @@ def addfriend():
         if not username_query:
             return render_template("addfriend.html", message="Provide friend's username")
 
-        # Używamy ILIKE dla wyszukiwania ignorującego wielkość liter
-        # % w PostgreSQL dodajemy do wartości parametru, a nie w samym zapytaniu SQL
         search_pattern = f"%{username_query}%"
         
         friends_res = db.session.execute(
@@ -293,7 +271,6 @@ def addfriend():
             {"u": search_pattern, "me": session["user_id"]}
         ).mappings().all()
 
-        # Konwertujemy na listę słowników, aby szablon Jinja2 mógł łatwo z nich korzystać
         friends = [dict(row) for row in friends_res]
 
         return render_template("addfriend.html", friends=friends)       
@@ -305,13 +282,11 @@ def add():
     user_id = session["user_id"]
 
     if friend_id:
-        # 1. Dodajemy relację do tabeli friends
         db.session.execute(
             text("INSERT INTO friends (friend1, friend2) VALUES (:f1, :f2)"),
             {"f1": user_id, "f2": friend_id}
         )
-        
-        # 2. Zatwierdzamy zmiany w bazie danych
+    
         db.session.commit()
         
     return redirect("/chats")

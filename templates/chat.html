@@ -29,11 +29,10 @@
     {% endif %}
     {% endfor %}
     <div>
-        <form action="/chat?friend={{friend2}}" method="post" class="form-inline">
-            <div class="form-group mx-sm-3 mb-2">
-                <input required name="message" type="text" class="form-control" id="inputPassword2" placeholder="message" autocomplete="off">
-                <button type="submit" class="btn btn-primary">Send message</button>
-            </div>
+        <form action="/chat?friend={{friend2}}" method="post" class="chat-form">
+            <input required name="message" type="text" placeholder="Message" autocomplete="off">
+            <button type="submit" class="btn btn-primary">Send</button>
         </form>
     </div>
+
 {% endblock %}
