@@ -37,19 +37,13 @@
 </div>
 
 <script>
+    function scrollToBottom() {
 
-function scrollToBottom() {
-
-    const messageBox = document.getElementById('message-box');
-
-    if (messageBox) {
-
-        messageBox.scrollTop = messageBox.scrollHeight;
-
+        const messageBox = document.getElementById('message-box');
+        if (messageBox) {
+            messageBox.scrollTop = messageBox.scrollHeight;
+        }
     }
-}
-
-window.onload = scrollToBottom;
-
+    window.onload = scrollToBottom;
 </script>
 {% endblock %}

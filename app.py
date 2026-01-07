@@ -271,8 +271,16 @@ def addfriend():
             text("SELECT * FROM users WHERE username ILIKE :u AND id != :me"),
             {"u": search_pattern, "me": session["user_id"]}
         ).mappings().all()
-
         friends = [dict(row) for row in friends_res]
+
+        friends_added = db.session.execute(
+            text("SELECT * FROM friends WHERE friend1 = :me OR friend2 = :me"),
+            {"me": session["user_id"]}
+        ).mappings().all()
+        friends_added = [row["id"] for row in friends_res]
+
+
+        friends = [user for user in friends if user["id"] not in friends_added]
 
         return render_template("addfriend.html", friends=friends)       
 
@@ -283,6 +291,7 @@ def add():
     user_id = session["user_id"]
 
     if friend_id:
+        
         db.session.execute(
             text("INSERT INTO friends (friend1, friend2) VALUES (:f1, :f2)"),
             {"f1": user_id, "f2": friend_id}
