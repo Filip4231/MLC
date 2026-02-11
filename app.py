@@ -210,6 +210,19 @@ def chat():
     if not friend_id:
         return redirect("/chats")
 
+    if request.method == "POST":
+        new_message_text = request.form.get("message")
+
+        db.session.execute(
+            text("INSERT INTO messages (sender, receiver, message, date) VALUES (:s, :r, :m, :d)"),
+            {"s": user_id, "r": friend_id, "m": new_message_text, "d": time()}
+        )
+        db.session.commit()
+            
+        return redirect(f'/chat?friend={friend_id}')
+
+
+
     query_messages = text("""
         SELECT * FROM messages 
         WHERE (sender = :u AND receiver = :f) 
@@ -219,22 +232,6 @@ def chat():
     
     messages_res = db.session.execute(query_messages, {"u": user_id, "f": friend_id}).mappings().all()
     messages = [dict(row) for row in messages_res]
-
-    new_message_text = request.form.get("message")
-    if new_message_text:
-        is_duplicate = False
-        if len(messages) > 0 and messages[-1]["message"] == new_message_text:
-            is_duplicate = True
-
-        if not is_duplicate:
-            db.session.execute(
-                text("INSERT INTO messages (sender, receiver, message, date) VALUES (:s, :r, :m, :d)"),
-                {"s": user_id, "r": friend_id, "m": new_message_text, "d": time()}
-            )
-            db.session.commit()
-            
-            messages_res = db.session.execute(query_messages, {"u": user_id, "f": friend_id}).mappings().all()
-            messages = [dict(row) for row in messages_res]
 
     friend_res = db.session.execute(text("SELECT username FROM users WHERE id = :id"), {"id": friend_id}).mappings().all()
     user_res = db.session.execute(text("SELECT username FROM users WHERE id = :id"), {"id": user_id}).mappings().all()
