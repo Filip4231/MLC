@@ -277,10 +277,13 @@ def addfriend():
             text("SELECT * FROM friends WHERE friend1 = :me OR friend2 = :me"),
             {"me": session["user_id"]}
         ).mappings().all()
-        friends_added = [row["id"] for row in friends_res]
+        print(friends_added)
+        friends_added = [row["friend1"] for row in friends_added] + [row["friend2"] for row in friends_added]
 
-
-        friends = [user for user in friends if user["id"] not in friends_added]
+        print(friends_added)
+        print(friends)
+        friends = [friend for friend in friends if friend["id"] not in friends_added]
+        print(friends)
 
         return render_template("addfriend.html", friends=friends)       
 
