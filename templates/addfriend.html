@@ -5,6 +5,8 @@
 {% endblock %}
 
 {% block main %}
+    <p style="margin-bottom: 8vh;"></p>
+    <p class="center">Please enter friend's username to add them</p>
     <form action="/addfriend" method="POST">
         <input required name="username" type="text" class="form-control" placeholder="Friend's username" autocomplete="off">
         <div class="center">
