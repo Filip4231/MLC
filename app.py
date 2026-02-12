@@ -13,6 +13,21 @@ from helpers import login_required
 #new SQL database
 from flask_sqlalchemy import SQLAlchemy
 
+def get_username():
+    if session.get("user_id"):
+        users = db.session.execute(
+            text("SELECT * FROM users WHERE id = :u"), 
+            {"u": session["user_id"]}
+        ).mappings().all()
+    else:
+        return -1
+
+        if len(users) == 0:
+            session.clear()
+            return -1
+    return users[0]["username"]
+
+
 def time():
     now = str(datetime.now())
     now = now[0:19]
@@ -78,18 +93,8 @@ with app.app_context():
 
 @app.route("/")
 def index():
-    if session.get("user_id"):
-        users = db.session.execute(
-            text("SELECT * FROM users WHERE id = :u"), 
-            {"u": session["user_id"]}
-        ).mappings().all()
-
-        if len(users) == 0:
-            session.clear()
-            return render_template("index.html")
-        
-        return render_template("index.html", username=users[0]["username"])
-    
+    if get_username()!=-1:
+        return render_template("index.html", username=get_username())
     return render_template("index.html")
 
 
@@ -167,7 +172,7 @@ def signup():
 @app.route("/myprofile")
 @login_required
 def myprofile():
-    return render_template("myprofile.html")
+    return render_template("myprofile.html", username = get_username())
 
 
 @app.route("/logout")
